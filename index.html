@@ -1,0 +1,107 @@
+<html>
+<head>
+<title>Gitcdn</title>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/typed.js/1.1.4/typed.min.js"></script>
+<style type="text/css">
+	body {
+		background-color: #222
+	}
+	#console {
+		font-family: courier, monospace;
+		color: #fff;
+		width:750px;
+		margin-left:auto;
+		margin-right:auto;
+		margin-top:100px;
+		font-size:16px;
+	}
+
+	.typed-cursor{
+    opacity: 1;
+    -webkit-animation: blink 0.7s infinite;
+    -moz-animation: blink 0.7s infinite;
+    animation: blink 0.7s infinite;
+}
+@keyframes blink{
+    0% { opacity:1; }
+    50% { opacity:0; }
+    100% { opacity:1; }
+}
+@-webkit-keyframes blink{
+    0% { opacity:1; }
+    50% { opacity:0; }
+    100% { opacity:1; }
+}
+@-moz-keyframes blink{
+    0% { opacity:1; }
+    50% { opacity:0; }
+    100% { opacity:1; }
+}
+	a {
+		color: #0bc;
+	}
+	#a {
+		color: #0f0;
+	}
+	#c {
+		color: #0bc;
+	}
+	#b {
+		color: #ff0096;
+	}
+</style>
+</head>
+<body>
+<script type="text/javascript">
+var prompt = "<span id='a'> benjamin</span>:<span id='b'>./gitcdn</span><span id='c'> $ </span>"
+		download = "<a href='https://github.com/benjamincaldwell/gitcdn/zipball/master'>download as .zip</a> <br/> " +
+							 "<a href='https://github.com/benjamincaldwell/gitcdn/tarball/master'>download as .tar</a> <br/> " +
+							 "<a href='https://github.com/benjamincaldwell/gitcdn'>view on github</a> <br/> ",
+
+    cursor = "<span class='blink'>|</span>";
+
+var fileList = function (cb){
+	$.getJSON("https://api.github.com/repos/benjamincaldwell/gitcdn/contents", function(data){
+		files = data.map(function(file){return file.path});
+		cb(files)
+	})
+}
+
+$(document).ready(function(){
+	var cmd = $('#console')
+  // cmd.append(cursor);
+	cmd.append(prompt);
+	cmd.append("<span class='typed' id='download'>");
+	$("#download").typed({
+		strings: ["download"],
+		callback: function(){
+			cmd.append("</br>")
+			cmd.append(download)
+			cmd.append("</br>")
+			cmd.append(prompt);
+			cmd.append("<span class='typed' id='ls'>");
+			$(".typed-cursor").remove()
+			$("#ls").typed({
+				strings: ["^100ls"],
+				typeSpeed: 100,
+				callback: function(){
+					fileList(function(files){
+						cmd.append("</br>")
+						cmd.append(files.join("</br>"))
+						cmd.append("</br>")
+						cmd.append(prompt);
+						cmd.append("<span class='typed' id='end'>");
+						$(".typed-cursor").remove()
+						$("#end").typed({ strings: [""] })
+					})
+				}
+			})
+		}
+	});
+})
+
+</script>
+<div id="console"></div>
+</body>
+</html>
