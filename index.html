@@ -1,7 +1,7 @@
 <html>
 <head>
 <title>Gitcdn</title>
-<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/typed.js/1.1.4/typed.min.js"></script>
 <style type="text/css">
 	body {
@@ -39,33 +39,59 @@
     100% { opacity:1; }
 }
 	a {
-		color: #0bc;
+		color: #005cbb;
 	}
-	#a {
-		color: #0f0;
+	.green {
+		color: #2fcc71;
 	}
-	#c {
-		color: #0bc;
+	.red {
+		color: #fc2d1e;
 	}
-	#b {
-		color: #ff0096;
+	.cyan {
+		color: #0095de;
+	}
+	.magenta {
+		color: #6171c4;
+	}
+	.blue {
+		color: #3398db
 	}
 </style>
 </head>
 <body>
 <script type="text/javascript">
-var prompt = "<span id='a'> benjamin</span>:<span id='b'>./gitcdn</span><span id='c'> $ </span>"
+var prompt = "<span class='red'> benjamin</span> <span class='cyan'>~/gitcdn</span> <span class='magenta'>master<span> <span class='green'> $ </span>"
 		download = "<a href='https://github.com/benjamincaldwell/gitcdn/zipball/master'>download as .zip</a> <br/> " +
 							 "<a href='https://github.com/benjamincaldwell/gitcdn/tarball/master'>download as .tar</a> <br/> " +
 							 "<a href='https://github.com/benjamincaldwell/gitcdn'>view on github</a> <br/> ",
 
     cursor = "<span class='blink'>|</span>";
 
-var fileList = function (cb){
-	$.getJSON("https://api.github.com/repos/benjamincaldwell/gitcdn/contents", function(data){
-		files = data.map(function(file){return file.path});
-		cb(files)
+var fileList = function (url){
+	url = (typeof url !== 'undefined') ?  url : "https://api.github.com/repos/benjamincaldwell/gitcdn/contents";
+
+	var p = $.Deferred();
+
+	var files = []
+	var promises = []
+	$.getJSON(url, function(data){
+		for (var i = 0; i < data.length; i++) {
+			if (data[i].type == "dir") {
+				var promise = fileList(data[i].url)
+				promise.then(function(dirFiles){
+					files = files.concat(dirFiles)
+				})
+				promises.push(promise)
+			} else {
+				files.push(data[i].path)
+			}
+		}
+		console.log (files)
+		$.when(...promises).then(function(){
+			p.resolve(files)
+		})
 	})
+	return p.promise()
 }
 
 $(document).ready(function(){
@@ -86,7 +112,7 @@ $(document).ready(function(){
 				strings: ["^100ls"],
 				typeSpeed: 100,
 				callback: function(){
-					fileList(function(files){
+					fileList().then(function(files){
 						cmd.append("</br>")
 						cmd.append(files.join("</br>"))
 						cmd.append("</br>")
