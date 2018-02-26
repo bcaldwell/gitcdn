@@ -60,6 +60,7 @@
 </head>
 <body>
 <script type="text/javascript">
+var blacklist = ["CNAME", "README.md", "index.html"];
 var prompt = "<span class='red'> benjamin</span> <span class='cyan'>~/gitcdn</span> <span class='magenta'>master<span> <span class='green'> $ </span>"
 		download = "<a href='https://github.com/benjamincaldwell/gitcdn/zipball/master'>download as .zip</a> <br/> " +
 							 "<a href='https://github.com/benjamincaldwell/gitcdn/tarball/master'>download as .tar</a> <br/> " +
@@ -86,7 +87,7 @@ var fileList = function (url){
 				files.push(data[i].path)
 			}
 		}
-		console.log (files)
+// 		console.log (files)
 		$.when(...promises).then(function(){
 			p.resolve(files)
 		})
@@ -113,6 +114,7 @@ $(document).ready(function(){
 				typeSpeed: 100,
 				callback: function(){
 					fileList().then(function(files){
+						files = files.filter(file => (!blacklist.includes(file)))
 						cmd.append("</br>")
 						cmd.append(files.join("</br>"))
 						cmd.append("</br>")
